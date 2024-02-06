@@ -1,0 +1,10 @@
+{
+  "name": "supervalue-ynab-sync",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "dayjs": "^1.11.10",
+    "ynab": "^2.2.0"
+  }
+}
