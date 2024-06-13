@@ -17,49 +17,52 @@ interface Receipt {
   items: ReceiptItem[];
 }
 
-const ynabAPI = new ynab.API(process.env.YNAB_TOKEN!);
+try {
+  const ynabAPI = new ynab.API(process.env.YNAB_TOKEN!);
 
-(async () => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: false,
+  });
   const page = await browser.newPage();
 
-  await page.goto("https://supervalu.ie/login");
+  await page.goto("https://supervalu.ie/login", { waitUntil: "networkidle0" });
 
-  const email = (await page.waitForSelector("input#user-email"))!;
-  await email.type(process.env.SUPERVALU_EMAIL!);
+  await page.type("input[type=email]", process.env.SUPERVALU_EMAIL!);
 
-  await page.type("input#user-password", process.env.SUPERVALU_PASSWORD!);
+  await page.type("input[type=password]", process.env.SUPERVALU_PASSWORD!);
 
-  await email.press("Enter");
+  await page.click("button[type=primary]");
 
-  await page.waitForNavigation({
-    waitUntil: "networkidle0",
-  });
+  const receipts = await (
+    await page.waitForFunction(async () => {
+      const { apiKey } = (window as any).oidcClientSettings || {};
+      const token = localStorage.janrainCaptureToken;
 
-  const receipts = await page.evaluate(async () => {
-    const { apiKey } = (window as any).oidcClientSettings;
-    const token = localStorage.janrainCaptureToken;
+      if (!apiKey || !token) {
+        return null!;
+      }
 
-    async function apiCall<T>(url: string): Promise<T> {
-      const res = await fetch(
-        `https://supervalu-loyalty-web.api.prod.musgrave.io/v2${url}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            apikey: apiKey,
-          },
-        }
-      );
+      async function apiCall<T>(url: string): Promise<T> {
+        const res = await fetch(
+          `https://supervalu-loyalty-web.api.prod.musgrave.io/v2${url}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              apikey: apiKey,
+            },
+          }
+        );
 
-      return res.json();
-    }
+        return res.json();
+      }
 
-    const { baskets } = await apiCall<{ baskets: any[] }>("/baskets");
+      const { baskets } = await apiCall<{ baskets: any[] }>("/baskets");
 
-    return Promise.all(
-      baskets.map((basket) =>
-        apiCall<{ view: string }>(`/baskets/${basket.type}/${basket.id}`).then(
-          ({ view }): Receipt => {
+      return Promise.all(
+        baskets.map((basket) =>
+          apiCall<{ view: string }>(
+            `/baskets/${basket.type}/${basket.id}`
+          ).then(({ view }): Receipt => {
             const html = document.createElement("html");
             html.innerHTML = view;
 
@@ -104,11 +107,11 @@ const ynabAPI = new ynab.API(process.env.YNAB_TOKEN!);
               paid: basket.paid * 1000,
               items,
             };
-          }
+          })
         )
-      )
-    );
-  });
+      );
+    })
+  ).jsonValue();
 
   const response = await ynabAPI.transactions.getTransactions(
     process.env.YNAB_BUDGET!
@@ -195,7 +198,10 @@ const ynabAPI = new ynab.API(process.env.YNAB_TOKEN!);
   }
 
   process.exit();
-})();
+} catch (e) {
+  console.error(e);
+  process.exit(1);
+}
 
 function getDescription(item: ReceiptItem) {
   if (item.quantity === 1) {

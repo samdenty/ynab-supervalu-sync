@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node --esm src/index.ts"
+  },
   "dependencies": {
+    "puppeteer": "^22.11.0",
+    "ts-node": "^10.9.2",
     "dayjs": "^1.11.10",
     "ynab": "^2.2.0"
   }
