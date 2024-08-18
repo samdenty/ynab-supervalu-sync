@@ -1,16 +1,22 @@
 {
-  "name": "supervalue-ynab-sync",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "start": "ts-node --esm src/index.ts"
-  },
-  "dependencies": {
-    "puppeteer": "^22.11.0",
-    "ts-node": "^10.9.2",
-    "dayjs": "^1.11.10",
-    "ynab": "^2.2.0"
-  }
+	"name": "supervalue-ynab-sync",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"start": "ts-node --esm src/index.ts"
+	},
+	"dependencies": {
+		"@cloudflare/workers-types": "^4.20240614.0",
+		"@types/node": "^20.14.2",
+		"dayjs": "^1.11.10",
+		"dotenv": "^16.4.5",
+		"puppeteer": "^23.1.0",
+		"@cloudflare/puppeteer": "^0.0.12",
+		"toml": "^3.0.0",
+		"ts-node": "^10.9.2",
+		"wrangler": "^3.0.0",
+		"ynab": "^2.2.0"
+	}
 }
