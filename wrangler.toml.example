@@ -5,7 +5,7 @@ name = "ynab-supervalu-sync"
 browser = { binding = "BROWSER" }
 
 [triggers]
-crons = ["0 * * * *"]
+crons = ["0 */6 * * *"]
 
 [vars]
 BUDGET="INSERT_YNAB_BUDGET_ID"
