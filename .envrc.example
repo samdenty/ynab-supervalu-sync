@@ -1,5 +1,0 @@
-export SUPERVALU_EMAIL=""
-export SUPERVALU_PASSWORD=""
-
-export YNAB_TOKEN=""
-export YNAB_BUDGET=""
